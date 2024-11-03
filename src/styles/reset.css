@@ -1,0 +1,83 @@
+/* Reset básico para remover os estilos padrão */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Remove bordas em elementos focáveis, para estilização personalizada */
+:focus {
+  outline: none;
+}
+
+/* Estilo padrão de fonte */
+html {
+  font-size: 100%; /* Define a fonte base como 16px */
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased; /* Suaviza fontes em alguns navegadores */
+  scroll-behavior: smooth;
+}
+
+/* Define o estilo básico para o body */
+body {
+  min-height: 100vh;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  background-color: #fff;
+  color: #333;
+  -webkit-font-smoothing: antialiased; /* Suaviza fontes em alguns navegadores */
+}
+
+/* Remove bullets e margens/paddings padrões das listas */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Remove sublinhado e cor padrão em links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Configuração de tabelas */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* Remove formatação padrão em campos de formulário */
+input,
+button,
+textarea,
+select {
+  font: inherit; /* Usa a mesma fonte do body */
+  color: inherit;
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Define altura mínima de imagens e figuras */
+img,
+picture,
+svg,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Define o estilo para botões */
+button {
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
