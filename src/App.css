@@ -13,7 +13,7 @@
 
 .container {
   display: flex;
-  width: 100%;
+  width: fit-content;
   gap: 24px;
 }
 
