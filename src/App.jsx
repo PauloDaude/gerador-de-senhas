@@ -79,7 +79,7 @@ const App = () => {
   return (
     <main className="main">
       <section className="container">
-        <Card width={450}>
+        <Card width={'100%'}>
           <h2>Gerador de senhas aleatórias</h2>
           <div className="slider-box">
             <p>Comprimento da senha: {passwordLength}</p>
@@ -166,7 +166,7 @@ const App = () => {
             </Button>
           </div>
         </Card>
-        <Card width={450} className="saved-passwords-container">
+        <Card width={'100%'} className="saved-passwords-container">
           <h3>Senhas salvas</h3>
           <div className="passwords-container">
             {isLoadingPasswords ? (

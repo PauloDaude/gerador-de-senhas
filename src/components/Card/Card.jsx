@@ -2,7 +2,7 @@ import './Card.css';
 
 const Card = ({ width, children, className }) => {
   return (
-    <div className={`card ${className}`} style={{ width }}>
+    <div className={`card ${className ? className : ''}`} style={{ width }}>
       {children}
     </div>
   );
