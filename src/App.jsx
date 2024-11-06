@@ -76,6 +76,8 @@ const App = () => {
     setTimeout(() => setIsCopied(false), 1000);
   };
 
+  console.log('Feito por Paulo Daude')
+
   return (
     <main className="main">
       <section className="container">
