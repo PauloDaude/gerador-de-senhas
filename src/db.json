@@ -1,3 +1,24 @@
 {
-  "passwords": []
+  "passwords": [
+    {
+      "id": "93877b4d-87df-4895-b225-4f325b1d8691",
+      "label": "Gmail",
+      "password": "hqVz%&%.0]K#bG{"
+    },
+    {
+      "id": "5c528cb3-af07-401a-a378-7f563c877fdc",
+      "label": "Instagram",
+      "password": "Ul#:o#iwA6f0~i&"
+    },
+    {
+      "id": "70c43aca-4176-4092-9752-665570c55043",
+      "label": "Outlook",
+      "password": "k2,oT[cMo2_s|+:"
+    },
+    {
+      "id": "7af29e3d-857e-4c1a-a660-97d2cd9a2252",
+      "label": "Facebook",
+      "password": "p]yZ)83bK*r],UG"
+    }
+  ]
 }

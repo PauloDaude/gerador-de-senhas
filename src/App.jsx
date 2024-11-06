@@ -39,7 +39,8 @@ const App = () => {
 
   const handleChangeSlider = event => setPasswordLength(event.target.value);
 
-  const handleChangePasswordId = event => setPasswordLabel(event.target.value);
+  const handleChangePasswordLabel = event =>
+    setPasswordLabel(event.target.value);
 
   const handleDeletePassword = async id => {
     const updatedPasswords = await deletePassword(id);
@@ -126,7 +127,7 @@ const App = () => {
           <div className="inputs-container">
             <InputText
               placeholder="Identificador da senha (ex: Email, Banco)"
-              onChange={handleChangePasswordId}
+              onChange={handleChangePasswordLabel}
               value={passwordLabel}
             />
             <InputText
