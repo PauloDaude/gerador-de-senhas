@@ -8,33 +8,12 @@ import Slider from './components/Slider/Slider';
 import PasswordCard from './components/PasswordCard/PasswordCard';
 import { v4 as uuidv4 } from 'uuid';
 import './App.css';
-
-const generatePassword = (
-  isUppercaseOn,
-  isLowercaseOn,
-  isNumbersOn,
-  isSymbolsOn,
-  passwordLength
-) => {
-  const uppercases = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const lowercases = 'abcdefghijklmnopqrstuvwxyz';
-  const numbers = '0123456789';
-  const symbols = '!@#$%^&*()_+{}[]|:;<>,.?/~';
-
-  let charset = '';
-  if (isUppercaseOn) charset += uppercases;
-  if (isLowercaseOn) charset += lowercases;
-  if (isNumbersOn) charset += numbers;
-  if (isSymbolsOn) charset += symbols;
-
-  let newPassword = '';
-  for (let i = 0; i < passwordLength; i++) {
-    const randomIndex = Math.floor(Math.random() * charset.length);
-    newPassword += charset.charAt(randomIndex);
-  }
-
-  return newPassword;
-};
+import {
+  deletePassword,
+  fetchAllPasswords,
+  createPassword
+} from './services/passwords.service';
+import { generatePassword } from './utils/passwords.utils';
 
 const App = () => {
   const [passwordLength, setPasswordLength] = useState(6);
@@ -48,84 +27,32 @@ const App = () => {
   const [passwords, setPasswords] = useState([]);
   const [isLoadingPasswords, setIsLoadingPasswords] = useState(false);
 
-  const fetchAllPasswords = async () => {
-    const url = 'http://localhost:3000/passwords';
-    setIsLoadingPasswords(true);
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-      const passwords = await response.json();
-      return passwords;
-    } catch (error) {
-      console.error(error.message);
-      return [];
-    } finally {
-      setIsLoadingPasswords(false);
-    }
-  };
-
-  const createPassword = async password => {
-    const url = 'http://localhost:3000/passwords';
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(password)
-      });
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-      const passwords = await fetchAllPasswords();
-      return passwords;
-    } catch (error) {
-      console.error(error.message);
-      return [];
-    }
-  };
-
-  const deletePassword = async id => {
-    const url = `http://localhost:3000/passwords/${id}`;
-    try {
-      const response = await fetch(url, {
-        method: 'DELETE'
-      });
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-      const passwords = await fetchAllPasswords();
-      return passwords;
-    } catch (error) {
-      console.error(error.message);
-      return [];
-    }
-  };
-
   useEffect(() => {
-    fetchAllPasswords().then(passwords => setPasswords(passwords));
+    const loadPasswords = async () => {
+      setIsLoadingPasswords(true);
+      const passwords = await fetchAllPasswords();
+      setPasswords(passwords);
+      setIsLoadingPasswords(false);
+    };
+    loadPasswords();
   }, []);
 
-  const handleChangeSlider = event => {
-    setPasswordLength(event.target.value);
+  const handleChangeSlider = event => setPasswordLength(event.target.value);
+
+  const handleChangePasswordId = event => setPasswordLabel(event.target.value);
+
+  const handleDeletePassword = async id => {
+    const updatedPasswords = await deletePassword(id);
+    setPasswords(updatedPasswords);
   };
 
-  const handleChangePasswordId = event => {
-    setPasswordLabel(event.target.value);
-  };
-
-  const handleDeletePassword = id => {
-    deletePassword(id).then(passwords => setPasswords(passwords));
-  };
-
-  const handleClickSave = passwordData => {
-    createPassword({
+  const handleClickSave = async passwordData => {
+    const updatedPasswords = await createPassword({
       id: uuidv4(),
       label: passwordData.label,
       password: passwordData.password
-    }).then(passwords => setPasswords(passwords));
+    });
+    setPasswords(updatedPasswords);
     setPasswordLabel('');
     setNewPassword('');
   };
@@ -241,18 +168,20 @@ const App = () => {
         <Card width={450} className="saved-passwords-container">
           <h3>Senhas salvas</h3>
           <div className="passwords-container">
-            {isLoadingPasswords && <p>Carregando...</p>}
-            {!isLoadingPasswords && passwords.length === 0 && (
+            {isLoadingPasswords ? (
+              <p>Carregando...</p>
+            ) : passwords.length === 0 ? (
               <p>Nenhuma senha salva ainda.</p>
+            ) : (
+              passwords.map(password => (
+                <PasswordCard
+                  key={password.id}
+                  label={password.label}
+                  password={password.password}
+                  handleDelete={() => handleDeletePassword(password.id)}
+                />
+              ))
             )}
-            {passwords.map((password, index) => (
-              <PasswordCard
-                key={index}
-                label={password.label}
-                password={password.password}
-                handleDelete={() => handleDeletePassword(password.id)}
-              />
-            ))}
           </div>
         </Card>
       </section>
