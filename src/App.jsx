@@ -3,7 +3,7 @@ import Button from './components/Button/Button';
 import InputText from './components/InputText/InputText';
 import Card from './components/Card/Card';
 import Switch from './components/Switch/Switch';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Slider from './components/Slider/Slider';
 import PasswordCard from './components/PasswordCard/PasswordCard';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,8 +14,11 @@ import {
   createPassword
 } from './services/passwords.service';
 import { generatePassword } from './utils/passwords.utils';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const App = () => {
+  const queryClient = useQueryClient();
+
   const [passwordLength, setPasswordLength] = useState(6);
   const [isUppercaseOn, setIsUppercaseOn] = useState(true);
   const [isLowercaseOn, setIsLowercaseOn] = useState(true);
@@ -24,18 +27,35 @@ const App = () => {
   const [passwordLabel, setPasswordLabel] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [isCopied, setIsCopied] = useState(false);
-  const [passwords, setPasswords] = useState([]);
-  const [isLoadingPasswords, setIsLoadingPasswords] = useState(false);
 
-  useEffect(() => {
-    const loadPasswords = async () => {
-      setIsLoadingPasswords(true);
-      const passwords = await fetchAllPasswords();
-      setPasswords(passwords);
-      setIsLoadingPasswords(false);
-    };
-    loadPasswords();
-  }, []);
+  const { data: allPasswordsData, isLoading: allPasswordsIsLoading } = useQuery(
+    {
+      queryKey: ['passwords'],
+      queryFn: fetchAllPasswords
+    }
+  );
+
+  const createPasswordMutation = useMutation({
+    mutationFn: passwordData => createPassword(passwordData),
+    onSuccess: () => {
+      console.log('Senha adicionada com sucesso!');
+      queryClient.invalidateQueries('passwords');
+    },
+    onError: error => {
+      console.log('Ocorreu um erro ao adicionar a senha:', error);
+    }
+  });
+
+  const deletePasswordMutation = useMutation({
+    mutationFn: id => deletePassword(id),
+    onSuccess: () => {
+      console.log('Senha removida com sucesso!');
+      queryClient.invalidateQueries('passwords');
+    },
+    onError: error => {
+      console.log('Ocorreu um erro ao remover a senha:', error);
+    }
+  });
 
   const handleChangeSlider = event => setPasswordLength(event.target.value);
 
@@ -43,17 +63,15 @@ const App = () => {
     setPasswordLabel(event.target.value);
 
   const handleDeletePassword = async id => {
-    const updatedPasswords = await deletePassword(id);
-    setPasswords(updatedPasswords);
+    deletePasswordMutation.mutate(id);
   };
 
   const handleClickSave = async passwordData => {
-    const updatedPasswords = await createPassword({
+    createPasswordMutation.mutate({
       id: uuidv4(),
       label: passwordData.label,
       password: passwordData.password
     });
-    setPasswords(updatedPasswords);
     setPasswordLabel('');
     setNewPassword('');
   };
@@ -75,8 +93,6 @@ const App = () => {
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 1000);
   };
-
-  console.log('Feito por Paulo Daude')
 
   return (
     <main className="main">
@@ -126,6 +142,9 @@ const App = () => {
               </div>
             </div>
           </div>
+          <Button icon={<RefreshCcw size={16} />} onClick={handleClickGenerate}>
+            Gerar nova senha
+          </Button>
           <div className="inputs-container">
             <InputText
               placeholder="Identificador da senha (ex: Email, Banco)"
@@ -148,35 +167,29 @@ const App = () => {
                 {isCopied ? 'Copiado!' : 'Copiar'}
               </Button>
               <Button
-                icon={<RefreshCcw size={16} />}
-                onClick={handleClickGenerate}
+                icon={<Save size={16} />}
+                disabled={!(passwordLabel && newPassword)}
+                onClick={() =>
+                  handleClickSave({
+                    label: passwordLabel,
+                    password: newPassword
+                  })
+                }
               >
-                Gerar nova senha
+                Salvar senha
               </Button>
             </div>
-            <Button
-              icon={<Save size={16} />}
-              disabled={!(passwordLabel && newPassword)}
-              onClick={() =>
-                handleClickSave({
-                  label: passwordLabel,
-                  password: newPassword
-                })
-              }
-            >
-              Salvar senha
-            </Button>
           </div>
         </Card>
         <Card width={'100%'} className="saved-passwords-container">
           <h3>Senhas salvas</h3>
           <div className="passwords-container">
-            {isLoadingPasswords ? (
+            {allPasswordsIsLoading ? (
               <p>Carregando...</p>
-            ) : passwords.length === 0 ? (
+            ) : allPasswordsData.length === 0 ? (
               <p>Nenhuma senha salva ainda.</p>
             ) : (
-              passwords.map(password => (
+              allPasswordsData.map(password => (
                 <PasswordCard
                   key={password.id}
                   label={password.label}
